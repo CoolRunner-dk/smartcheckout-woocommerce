@@ -1,0 +1,176 @@
+.csc-settings-container {
+    margin: 0 auto;
+    width: 700px;
+    height: 285px;
+    background: white;
+    border-radius: 3px;
+    margin-top: 70px;
+    box-shadow: 0px 0px 2px 0px #00000052;
+}
+
+.csc-settings-boxes {
+    margin: 0 auto;
+    width: 700px;
+    height: 55px;
+    background: white;
+    border-radius: 3px;
+    margin-top: 10px;
+    box-shadow: 0px 0px 2px 0px #00000052;
+}
+
+.csc-settings-boxes div {
+    margin-left: 40px;
+    margin-top: 10px;
+    color: #a7a7a7;
+    float:left;
+}
+
+.csc-settings-boxes div a {
+    color: #157EFB;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.csc-settings-title {
+    width: 100%;
+    height: 70px;
+    background: #157efb;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.csc-settings-title div {
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+    margin-left: 20px;
+    padding-top: 25px;
+    text-align: center;
+}
+
+.csc-settings-main {
+    width: 100%;
+}
+
+.csc-settings-inputtitle {
+    font-size: 20px;
+    color: #a7a7a7;
+    margin: 35px;
+    margin-bottom: 5px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #f1f1f1;
+}
+
+.csc-settings-inputs {
+    text-align: center;
+}
+
+.csc-settings-inputs .csc-text-input input {
+    padding: 10px;
+    margin: 10px;
+    width: 90%;
+    text-align: center;
+    border: 0px;
+    background: #f1f1f1;
+    border-radius: 1px !important;
+    font-size: 20px;
+    letter-spacing: 10px;
+}
+
+.col1 {
+    text-align: left;
+    width: 40%;
+    float: left;
+    margin-left: 35px;
+}
+
+.col2 {
+    text-align: right;
+    width: 40%;
+    float: right;
+    margin-right: 35px;
+    padding-top: 7px;
+}
+
+.col1 input[type="submit"] {
+    padding: 10px;
+    background: #157efb;
+    border: 1px solid #157efb;
+    border-radius: 2px;
+    color: white;
+}
+
+.connected {
+    background: #157efb;
+    width: 10px;
+    height: 10px;
+    float: right;
+    margin-left: 7px;
+    border-radius: 50px;
+    margin-top: 5px;
+}
+
+.csc-boxsizes {
+    margin: 0 auto;
+    padding: 10px;
+    width: 1040px;
+}
+
+.csc-box-title {
+    width: 100%;
+    height: 70px;
+    background: #157efb;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.csc-box-title div {
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+    margin-left: 20px;
+    padding-top: 25px;
+    text-align: center;
+}
+
+.csc-box-content {
+    background: white;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    padding: 10px;
+}
+
+table#coolrunner-box-sizes-table input[type="text"], table#coolrunner-box-sizes-table input[type="number"] {
+    border: 1px solid #a7a7a7;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+button.button.button-primary.csc {
+    background: #157efb !important;
+    border-color: #157efb !important;
+}
+
+input[type=radio]:checked::before {
+    background-color: #157efb !important;
+}
+
+button.button.csc-nonprim {
+    color: #157efb;
+    border-color: #157efb;
+}
+
+.cscback {
+    position: absolute;
+    padding: 10px;
+    background: #157efb;
+    color: white;
+    margin-top: 10px;
+    text-align: center;
+    width: 20px;
+    height: 20px;
+    padding-top: 7px;
+    border-radius: 3px;
+    font-size: 15px;
+}
+

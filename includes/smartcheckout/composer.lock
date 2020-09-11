@@ -1,0 +1,75 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "a2fffaa45c35b6aa031e3fa3257f5ba4",
+    "packages": [
+        {
+            "name": "nicoswd/php-rule-parser",
+            "version": "0.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nicoSWD/php-rule-parser.git",
+                "reference": "a023a949f9b5da9e02f485899a9af23bb8333558"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nicoSWD/php-rule-parser/zipball/a023a949f9b5da9e02f485899a9af23bb8333558",
+                "reference": "a023a949f9b5da9e02f485899a9af23bb8333558",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.0",
+                "phpstan/phpstan": "^0.12.3",
+                "phpunit/phpunit": "^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "nicoSWD\\Rule\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Oelgart",
+                    "homepage": "https://nicoswd.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP 7 Rule Engine - Rule Parser & Evaluator",
+            "homepage": "https://github.com/nicoSWD/php-rule-parser",
+            "keywords": [
+                "DSL",
+                "engine",
+                "evaluator",
+                "highlighter",
+                "javascript",
+                "parser",
+                "rule",
+                "tokenizer",
+                "workflow"
+            ],
+            "time": "2020-06-13T08:46:09+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "ext-json": "*",
+        "ext-curl": "*"
+    },
+    "platform-dev": []
+}

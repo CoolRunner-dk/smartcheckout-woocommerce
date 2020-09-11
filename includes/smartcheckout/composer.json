@@ -1,0 +1,14 @@
+{
+    "name": "coolrunner/smartcheckoutsdk",
+    "description": "Handle prices with SmartCheckout",
+    "require": {
+      "ext-json": "*",
+      "ext-curl": "*",
+        "nicoswd/php-rule-parser": "^0.6.0"
+    },
+    "autoload": {
+        "psr-4" : {
+            "SmartCheckoutSDK\\" : "src"
+        }
+    }
+}
