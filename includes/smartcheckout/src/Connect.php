@@ -33,11 +33,12 @@ class Connect
                 'platform' => $platform,
                 'website' => $website,
                 'version' => $version,
-                'time' => strtotime($time)
+                'time' => $time
             ]);
         } else {
             return json_encode([
-                'status' => 'disconnected'
+                'status' => 'disconnected',
+                'time' => strtotime($time)
             ]);
         }
     }

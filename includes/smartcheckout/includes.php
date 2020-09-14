@@ -9,4 +9,5 @@ include ('src/Models/FilterTypes/Double.php');
 include ('src/Models/FilterTypes/Number.php');
 include ('src/Models/FilterTypes/Text.php');
 include ('src/Models/FilterTypes/Boolean.php');
+include ('src/CoolRunnerAPI/API.php');
 include('vendor/autoload.php');

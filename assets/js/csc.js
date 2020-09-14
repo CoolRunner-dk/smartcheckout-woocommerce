@@ -7,9 +7,12 @@ jQuery(function ($) {
             origin_city = diff_ship_address ? $('[name="shipping_city"]').val() : $('[name="billing_city"]').val(),
             origin_country = diff_ship_address ? $('[name="shipping_country"]').val() : $('[name="billing_country"]').val(),
             chosen_zip_code = $('[name="coolrunner_zip_code_search"]'),
-            carrier = $('[name="coolrunner_carrier"]').val();
+            carrier = $('[name="shipping_method[0]"]:checked').val();
 
         chosen_zip_code = chosen_zip_code.val() ? chosen_zip_code.val() : chosen_zip_code.attr('placeholder');
+        carrier = carrier.split("_");
+        carrier = carrier[0];
+        console.log(carrier);
 
         var ajax_data = {
             action: 'coolrunner_droppoint_search',
@@ -25,10 +28,10 @@ jQuery(function ($) {
 
         if (chosen_zip_code.length !== 0) {
             $('.coolrunner-droppoints').slideUp(250, function () {
-                $(this).slideDown(250).html('<div class="cr-loading-droppoints"><span class="cr-spinner"></span><span class="cr-searching">' + coolrunner.lang.droppoint_searching + '</span></div>');
+                $(this).slideDown(250).html('<div class="cr-loading-droppoints"><span class="cr-spinner"></span><span class="cr-searching">' + csc.lang.droppoint_searching + '</span></div>');
             });
             $.ajax({
-                url: coolrunner.ajax_url,
+                url: csc.ajax_url,
                 type: 'post',
                 data: ajax_data,
                 success: function (response) {
@@ -76,13 +79,13 @@ jQuery(function ($) {
                 }
 
                 if (val !== undefined) {
-                    if (val.indexOf('coolrunner_') === -1 || val.indexOf('droppoint') === -1) {
+                    if (val.indexOf('droppoint') === -1) {
                         droppoint_container.hide();
                     } else {
                         droppoint_container.show();
                     }
 
-                    var parts = val.replace('coolrunner_', '').split('_', 3),
+                    var parts = val.split('_', 3),
                         carrier = parts[0],
                         product = parts[1],
                         service = parts.hasOwnProperty(2) ? parts[2] : null;

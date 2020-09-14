@@ -79,6 +79,21 @@ if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 		wp_enqueue_script( 'csc', plugins_url( '/assets/js/admin.js', __FILE__ ), array( 'jquery' ), CSC_WOOCOMMERCE_VERSION, true );
 	});
 
+	// Add JS to checkout
+    add_action( 'wp_enqueue_scripts', function () {
+        if ( is_checkout() ) {
+            wp_enqueue_script( 'csc', plugins_url( '/assets/js/csc.js', __FILE__ ), array( 'jquery' ), CSC_WOOCOMMERCE_VERSION, true );
+
+            wp_localize_script( 'csc', 'csc', array(
+                'ajax_url' => admin_url( 'admin-ajax.php' ),
+                'lang'     => array(
+                    'droppoint_searching' => __( 'Searching for droppoints!', CSC_TEXTDOMAIN )
+                )
+            ) );
+        }
+    } );
+
+    // Handle rates
     add_action('woocommerce_shipping_init', function () {
         if(class_exists('SmartCheckoutRates')) {
             return;
