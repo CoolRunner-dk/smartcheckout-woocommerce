@@ -1,7 +1,7 @@
 .csc-settings-container {
     margin: 0 auto;
     width: 700px;
-    height: 285px;
+    height: 360px;
     background: white;
     border-radius: 3px;
     margin-top: 70px;
@@ -75,6 +75,10 @@
     border-radius: 1px !important;
     font-size: 20px;
     letter-spacing: 10px;
+}
+
+#csc_storename {
+    letter-spacing: 2px;
 }
 
 .col1 {
@@ -174,3 +178,136 @@ button.button.csc-nonprim {
     font-size: 15px;
 }
 
+div#csc-shipment-information {
+    background: #f8f8f8;
+    border: 1px solid #ccd0d4;
+    margin-left: -5px;
+    float: left;
+    border-radius: 2px;
+}
+
+.csc-shipment-header {
+    background: #f8f8f8;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    float: left;
+    width: 100%;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+}
+
+.csc-shipment-header .col1 {
+    float: left;
+    width: 45%;
+    margin-left: 5px;
+}
+
+.csc-shipment-header .col2 {
+    float: right;
+    width: 45%;
+    margin-right: 5px;
+    margin-top: 0px;
+    padding-top: 0px;
+}
+
+.csc-shipment-header h3 {
+    padding-top: 5px !important;
+    margin-top: 0px !important;
+}
+
+.csc-shiporder button {
+    border-radius: 3px;
+    background: #007cba;
+    border: 1px solid #007cba;
+    color: white;
+    padding: 5px;
+}
+
+.csc-shipment-body {
+    float: left;
+    width: 100%;
+}
+
+.csc-shipment-line {
+    width: 100%;
+    float: left;
+    background: white;
+    border-bottom: 1px solid #dfdfdf;
+    margin-bottom: 10px;
+}
+
+.csc-shipment-image {
+    float: left;
+    width: 55px;
+    height: 55px;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.csc-shipment-image img {
+    margin-top: 10px;
+}
+
+.csc-shipment-data {
+    float: left;
+    font-size: .92em!important;
+    color: #888;
+    margin-top: 4px;
+    width: 220px;
+}
+
+.csc-shipment-price {
+    float: right;
+    font-size: .92em!important;
+    color: #888;
+    margin-top: 4px;
+    text-align: right;
+    margin-right: 5px;
+}
+
+.printlabel {
+    cursor: pointer;
+}
+
+.csc-shipment-data a {
+    text-decoration: none !important;
+}
+.csc-shipment-line.box-sizes {
+    padding-top: 0px;
+    padding-bottom: 10px;
+}
+
+.csc-shipment-line.box-sizes div {
+    float: left;
+    width: 48%;
+    margin-left: 5px;
+    margin-bottom: 5px;
+}
+
+.csc-shipment-line.box-sizes div input {
+    width: 150px;
+    float: right;
+    border: 0px;
+    border-radius: 0px;
+    border-bottom: 1px solid #ccd0d4;
+}
+
+.csc-shipment-line.box-sizes label {
+    margin-top: 5px;
+    float: left;
+}
+
+.selectbox-fullwidth {
+    width: 100% !important;
+    float: left;
+    margin-left: 0px !important;
+}
+
+.selectbox-fullwidth select {
+    width: 100%;
+    border: 0px solid gray;
+    border-radius: 0px;
+    font-size: 13px;
+    margin-left: 0px;
+    background: #f1f1f1;
+}

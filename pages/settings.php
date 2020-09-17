@@ -23,9 +23,10 @@ if ( ! empty( $_POST ) ) {
             <div><?php echo __('SmartCheckout - Installation', CSC_TEXTDOMAIN); ?></div>
         </div>
         <div class="csc-settings-main">
-            <div class="csc-settings-inputtitle"><?php echo __('Indtast dit installationsnummer', CSC_TEXTDOMAIN); ?></div>
+            <div class="csc-settings-inputtitle"><?php echo __('Indtast dine informationer', CSC_TEXTDOMAIN); ?></div>
             <div class="csc-settings-inputs">
-                <div class="csc-text-input"><input type="text" value="<?php echo get_option( 'csc_token' ) ?>" name="csc_token" id="csc_token" placeholder="<?php echo __('eks. 548764', CSC_TEXTDOMAIN); ?>"></div>
+                <div class="csc-text-input"><input type="text" value="<?php echo get_option( 'csc_token' ) ?>" name="csc_token" id="csc_token" placeholder="<?php echo __('Indtast installationstoken', CSC_TEXTDOMAIN); ?>"></div>
+                <div class="csc-text-input"><input type="text" value="<?php echo get_option( 'csc_storename' ) ?>" name="csc_storename" id="csc_storename" placeholder="<?php echo __('Indtast webshoppens navn', CSC_TEXTDOMAIN); ?>"></div>
                 <div>
                     <div class="col1">
                         <input type="submit" value="<?php echo __('Opret forbindelse', CSC_TEXTDOMAIN); ?>">

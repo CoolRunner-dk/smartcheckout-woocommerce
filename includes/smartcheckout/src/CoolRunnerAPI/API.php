@@ -49,49 +49,14 @@ class API
             // Define API properties
             $endpoint = "https://api.coolrunner.dk/v3/shipments";
             $type = "POST";
-
-            $req = array(
-                "sender" => array("name", "attention", "street1", "street2", "zip_code", "city", "country", "phone", "email"),
-                "receiver" => array("name", "attention", "street1", "street2", "zip_code", "city", "country", "phone", "email", "notify_sms", "notify_email"),
-                "length", "width", "height", "weight", "carrier", "carrier_product", "carrier_service", "reference", "description", "comment", "label_format", "servicepoint_id"
-            );
         } elseif ($warehouse == "pcn") {
             // Define API properties
             $endpoint = "https://api.coolrunner.dk/pcn/order/create";
             $type = "POST";
-
-            $req = array(
-                "order_number", "receiver_name", "receiver_attention", "receiver_street1", "receiver_street2", "receiver_zipcode", "receiver_city", "receiver_country", "receiver_phone",
-                "receiver_email", "receiver_phone", "receiver_email", "receiver_notify", "receiver_notify_sms", "receiver_notify_email", "droppoint_id", "droppoint_name", "droppoint_street1",
-                "droppoint_street2", "droppoint_zipcode", "droppoint_city", "droppoint_country", "carrier", "carrier_product", "carrier_service", "reference", "description", "comment",
-                "order_lines" => array("item_number", "qty")
-            );
         }
 
-        // Used to check if there is errors in data array
-        $errors = [];
-
-        foreach ($req as $field) {
-            // Handle arrays
-            if(is_array($field)) {
-                foreach ($field as $single_field) {
-                    if(!in_array($single_field, $data[$field])) {
-                        $errors[] = "Error: " . $single_field ." is missing in " . $field;
-                    }
-                }
-            } else {
-                if(!in_array($field, $data)) {
-                    $errors[] = "Error: " . $field ." is missing";
-                }
-            }
-        }
-
-        if(!empty($errors)) {
-            return json_encode($errors);
-        } else {
-            $response = $this->curl($endpoint, $type, $data);
-            return $response;
-        }
+        $response = $this->curl($endpoint, $type, $data);
+        return $response;
     }
 
     public function get_shipment($package_number)
@@ -145,6 +110,15 @@ class API
     {
         // Define API properties
         $endpoint = "https://api.coolrunner.dk/v3/servicepoints/".$carrier."/".$servicepoint_id;
+        $type = "GET";
+
+        $response = $this->curl($endpoint, $type);
+        return $response;
+    }
+
+    public function get_products($country) {
+        // Define API properties
+        $endpoint = "https://api.coolrunner.dk/v3/products/" . $country;
         $type = "GET";
 
         $response = $this->curl($endpoint, $type);
