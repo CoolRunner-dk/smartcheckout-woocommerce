@@ -60,7 +60,7 @@ function crship_package_information($order = null) {
                 </div>
                 <div>
                     <label for="csc_weight">Vægt:</label>
-                    <input name="csc_weight" id="csc_weight" type="text" placeholder="ex. 10 g">
+                    <input name="csc_weight" id="csc_weight" value="<?php echo get_order_weight($order->get_id()) ?>" type="text" placeholder="ex. 10 g">
                 </div>
             </div>
             <div class="csc-shipment-body">
@@ -221,7 +221,6 @@ add_action( 'wp_ajax_csc_create_shipment', function () {
 
 add_action( 'wp_ajax_csc_print_label', function () {
     if ( isset( $_POST['package_number'] ) ) {
-        error_log($_POST['package_number']);
         $cr_api = new SmartCheckoutSDK\CoolRunnerAPI\API(get_option('coolrunner_username'), get_option('coolrunner_token'));
         $label = $cr_api->get_label($_POST['package_number']);
 
@@ -381,7 +380,9 @@ function csc_create_shipment($order_id = null, $size = null) {
                 "tracking" => $response->_links->tracking
             );
 
-            update_post_meta($order->get_id(), '_csc_shipments', $shipments);
+            if(!empty($shipments)) {
+                update_post_meta($order->get_id(), '_csc_shipments', $shipments);
+            }
         } elseif ($warehouse == 'pcn') {
             if(!get_post_meta($order->get_id(), '_csc_shipments')) {
                 $shipments = array();
@@ -395,7 +396,9 @@ function csc_create_shipment($order_id = null, $size = null) {
                 "pcn_pack_id" => $response->pcn_pack_id
             );
 
-            update_post_meta($order->get_id(), '_csc_shipments', $shipments);
+            if(!empty($shipments)) {
+                update_post_meta($order->get_id(), '_csc_shipments', $shipments);
+            }
         }
     } else {
         $order->add_order_note('FEJL (CoolRunner): ' . $response->message);
@@ -507,14 +510,209 @@ add_action( 'rest_api_init', function () {
         'methods' => 'POST',
         'callback' => 'csc_updateproducts',
         'permission_callback' => '__return_true'
-    ) );
+    ));
 
     register_rest_route( 'coolrunner/v1', '/ping/(?P<token>\d+)', array(
         'methods' => 'get',
         'callback' => 'csc_ping',
         'permission_callback' => '__return_true'
-    ) );
-} );
+    ));
+});
+
+// Add column in order overview
+function csc_status_custom_column( $columns ) {
+    $offset = 8;
+    foreach ( array_keys( $columns ) as $key => $value ) {
+        if ( $value === 'order_total' ) {
+            $offset = $key;
+            break;
+        }
+    }
+    $updated_columns = array_slice( $columns, 0, $offset, true ) +
+        array(
+            'csc_status' => esc_html__( 'CoolRunner', CSC_TEXTDOMAIN )
+        ) +
+        array_slice( $columns, $offset, null, true );
+
+    return $updated_columns;
+}
+add_filter( 'manage_edit-shop_order_columns', 'csc_status_custom_column', 20 );
+
+// Add label to column status
+function csc_status_column( $column ) {
+    global $post;
+
+    if ( $column == 'csc_status' ) {
+        if(isset(get_post_meta($post->ID, '_csc_shipments')[0])) {
+            echo '<mark class="order-status status-completed coolrunner"><img src="/wp-content/plugins/coolrunner_smartcheckout/assets/images/print.png" height="20px" style="margin-top: 7px; margin-left: 7px; filter: brightness(0) invert(1);"><span>Afsendt ( '.count(get_post_meta($post->ID, '_csc_shipments')[0]).' labels )</span></mark>';
+        } elseif(check_if_error($post->ID)) {
+            echo '<mark class="order-status status-failed coolrunner"><img src="/wp-content/plugins/coolrunner_smartcheckout/assets/images/print.png" height="20px" style="margin-top: 7px; margin-left: 7px; filter: brightness(0) invert(1);"><span>Fejl ved oprettelse</span></mark>';
+        } else {
+            echo '<mark class="order-status coolrunner"><img src="/wp-content/plugins/coolrunner_smartcheckout/assets/images/print.png" height="20px" style="margin-top: 7px; margin-left: 7px; filter: brightness(0) invert(1);"><span>Ikke afsendt</span></mark>';
+        }
+    }
+}
+add_action( 'manage_shop_order_posts_custom_column', 'csc_status_column', 2 );
+
+// Adding bulk action to print all orders
+function csc_bulk_actions( $actions ) {
+    $actions['print_all_orders'] = __( 'CoolRunner: Print labels', CSC_TEXTDOMAIN );
+    $actions['create_shipments_orders'] = __( 'CoolRunner: Create labels', CSC_TEXTDOMAIN );
+    return $actions;
+}
+add_filter( 'bulk_actions-edit-shop_order', 'csc_bulk_actions', 20, 1 );
+
+// Merge PDFs and show these
+function csc_bulk_print( $redirect_to, $action, $post_ids ) {
+    include 'vendor/autoload.php';
+
+    if ( $action !== 'print_all_orders' )
+        return $redirect_to; // Exit
+
+    $time = time();
+    $count = 0;
+    $pdf = new Clegginabox\PDFMerger\PDFMerger;
+
+    foreach ( $post_ids as $post_id ) {
+        $orderShipments = get_post_meta($post_id, '_csc_shipments')[0];
+
+        foreach ($orderShipments as $shipment) {
+            $cr_api = new SmartCheckoutSDK\CoolRunnerAPI\API(get_option('coolrunner_username'), get_option('coolrunner_token'));
+            $shipmentLabel = $cr_api->get_label($shipment['package_number']);
+
+            $file = CSC_PLUGIN_DIR . '/pdfs/' . $count . '-' . $post_id . '-' . $time . '.pdf';
+
+            file_put_contents($file, $shipmentLabel);
+
+            $pdf->addPDF($file);
+            $count++;
+        }
+    }
+
+    $merge = CSC_PLUGIN_DIR . '/pdfs/' . $time . '-merge' . '.pdf';
+    $pdf->merge('browser', $merge, 'P');
+}
+add_filter( 'handle_bulk_actions-edit-shop_order', 'csc_bulk_print', 10, 3 );
+
+// Create shipments using bulk action
+function csc_bulk_create( $redirect_to, $action, $post_ids ) {
+    if ( $action !== 'create_shipments_orders' )
+        return $redirect_to; // Exit
+
+    $processed_ids = array();
+
+    // Find primary box and use that size
+    $box_sizes = CSC::getBoxSizes();
+    $box_primary = array();
+    foreach ($box_sizes as $box_size) {
+        if($box_size['primary'] == 1) {
+            $box_primary = $box_size;
+        }
+    }
+
+    // Create order for each post_id found using primary box
+    if(!empty($box_primary)) {
+        foreach ($post_ids as $post_id) {
+            $box_primary['weight'] = get_order_weight($post_id);
+            csc_create_shipment($post_id, $box_primary);
+            $processed_ids[] = $post_id;
+        }
+
+        return $redirect_to = add_query_arg(array(
+            'orders_created' => 1,
+            'processed_count' => count($processed_ids),
+            'processed_ids' => implode(',', $processed_ids),
+        ), $redirect_to);
+    } else {
+        return $redirect_to = add_query_arg(array(
+            'orders_created' => 0,
+            'processed_count' => count($processed_ids),
+            'processed_ids' => implode(',', $processed_ids),
+            'no_primary_box' => 1
+        ), $redirect_to);
+    }
+}
+add_filter( 'handle_bulk_actions-edit-shop_order', 'csc_bulk_create', 10, 3 );
+
+// Extra functions
+function check_if_error($post_id) {
+    $args = array(
+        'post_id' => $post_id,
+        'orderby' => 'comment_ID',
+        'order'   => 'DESC',
+        'approve' => 'approve',
+        'type'    => 'order_note',
+        'number'  => 1
+    );
+
+    remove_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ), 10, 1 );
+    $notes = get_comments( $args );
+    add_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ), 10, 1 );
+
+    if(strpos($notes[0]->comment_content, 'FEJL (CoolRunner)') !== false && !isset(get_post_meta($post_id, '_csc_shipments')[0])) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function get_order_weight($post_id) {
+    $order = new WC_Order($post_id);
+    $total_weight = 0;
+
+    foreach( $order->get_items() as $item_id => $product_item ){
+        $quantity = $product_item->get_quantity(); // get quantity
+        $product = $product_item->get_product(); // get the WC_Product object
+        $product_weight = $product->get_weight(); // get the product weight
+
+        if($product_weight == 0 OR $product_weight == '') {
+            $product_weight = 1;
+        }
+
+        // Add the line item weight to the total weight calculation
+        $total_weight += $product_weight * $quantity;
+    }
+
+    if($total_weight == 0) {
+        $total_weight = 1;
+    }
+
+    $total_weight = $total_weight*1000;
+
+    return $total_weight;
+}
+
+// Cronjob to cleanup pdfs folder
+function csc_cron_interval( $schedules ) {
+    $schedules['everyweek'] = array(
+        'interval' => 604800,
+        'display' => esc_html__('Every week')
+    );
+
+    return $schedules;
+}
+add_filter( 'cron_schedules', 'csc_cron_interval' );
+
+function csc_cleanpdfs() {
+    $dir = CSC_PLUGIN_DIR . 'pdfs/';
+
+    foreach (glob($dir.'*.pdf') as $file) {
+        unlink($file);
+    }
+}
+add_action('wp_scheduled_csc_cleanpdfs', 'csc_cleanpdfs');
+
+// Handle activation of plugin
+register_activation_hook(CSC_PLUGIN_FILE, 'csc_activate');
+function csc_activate() {
+    wp_schedule_event(time(), 'everyweek', 'wp_scheduled_csc_cleanpdfs');
+}
+
+// Handle deactivation of plugin
+register_deactivation_hook(CSC_PLUGIN_FILE, 'csc_deactivate');
+function csc_deactivate() {
+    wp_clear_scheduled_hook('wp_scheduled_csc_cleanpdfs');
+}
 
 // Function used by endpoint to update products
 function csc_updateproducts( $data ) {
