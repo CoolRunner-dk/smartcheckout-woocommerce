@@ -26,14 +26,14 @@ function crship_package_information($order = null) {
                 <div class="col1"><h3>CoolRunner</h3></div>
                 <div class="col2">
                     <div class="csc-shiporder">
-                        <button id="create_label" name="create_label">Opret label</button>
+                        <button id="create_label" name="create_label"><?php echo __('Create label', 'csc_textdomain'); ?></button>
                     </div>
                 </div>
             </div>
             <div class="csc-shipment-line box-sizes">
                 <div class="selectbox-fullwidth">
                     <select name="box-sizes" id="box-sizes">
-                        <option>Vælge kassestørrelse..</option>
+                        <option><?php echo __('Pick a box size..', 'csc_textdomain'); ?></option>
                         <?php foreach ( CSC::getBoxSizes() as $size ) : ?>
                             <option data-height="<?php echo $size['height'] ?>"
                                     data-width="<?php echo $size['width'] ?>"
@@ -47,19 +47,19 @@ function crship_package_information($order = null) {
                 </div>
                 <input type="hidden" id="csc_orderid" name="csc_orderid" value="<?php echo $order->get_id(); ?>">
                 <div>
-                    <label for="csc_width">Bredde:</label>
+                    <label for="csc_width"><?php echo __('Width:', 'csc_textdomain'); ?></label>
                     <input name="csc_width" id="csc_width" type="text" placeholder="ex. 10 cm">
                 </div>
                 <div>
-                    <label for="csc_length">Længde:</label>
+                    <label for="csc_length"><?php echo __('Length:', 'csc_textdomain'); ?></label>
                     <input name="csc_length" id="csc_length" type="text" placeholder="ex. 10 cm">
                 </div>
                 <div>
-                    <label for="csc_height">Højde:</label>
+                    <label for="csc_height"><?php echo __('Height:', 'csc_textdomain'); ?></label>
                     <input name="csc_height" id="csc_height" type="text" placeholder="ex. 10 cm">
                 </div>
                 <div>
-                    <label for="csc_weight">Vægt:</label>
+                    <label for="csc_weight"><?php echo __('Weight:', 'csc_textdomain'); ?></label>
                     <input name="csc_weight" id="csc_weight" value="<?php echo get_order_weight($order->get_id()) ?>" type="text" placeholder="ex. 10 g">
                 </div>
             </div>
@@ -85,7 +85,7 @@ function crship_package_information($order = null) {
                                 <div class="csc-shipment-data">
                                     <div><b><?php echo $shipment['package_number']; ?></b></div>
                                     <div><?php if($shipment['labelless_code'] != '') { echo $shipment['labelless_code']; } else { echo 'Ingen labellelss kode'; } ?></div>
-                                    <div><a target="_blank" href="https://tracking.coolrunner.dk/?shipment=<?php echo $shipment['package_number']; ?>">Track denne forsendelse</a></div>
+                                    <div><a target="_blank" href="https://tracking.coolrunner.dk/?shipment=<?php echo $shipment['package_number']; ?>"><?php echo __('Track this shipment', 'csc_textdomain'); ?></a></div>
                                 </div>
                                 <div class="csc-shipment-price">
                                     <div><b>Subtotal</b></div>
@@ -97,12 +97,8 @@ function crship_package_information($order = null) {
                                 <div class="csc-shipment-image"><img src="/wp-content/plugins/coolrunner_smartcheckout/assets/images/print.png" height="30px"></div>
                                 <div class="csc-shipment-data">
                                     <div><b><?php echo $shipment['package_number']; ?></b></div>
-                                    <div><?php echo $shipment['shipment_id'] . ' - ' . $shipment['pcn_pack_id'];  ?></div>
-                                    <div><a target="_blank" href="https://tracking.coolrunner.dk/?shipment=<?php echo $shipment['package_number']; ?>">Track denne forsendelse</a></div>
-                                </div>
-                                <div class="csc-shipment-price">
-                                    <div><b>Subtotal</b></div>
-                                    <div>-<?php echo $shipment['price_incl_tax']; ?> DKK</div>
+                                    <div><?php echo 'SID: ' . $shipment['shipment_id'] . ' - PID: ' . $shipment['pcn_pack_id'];  ?></div>
+                                    <div><a target="_blank" href="https://tracking.coolrunner.dk/?shipment=<?php echo $shipment['package_number']; ?>"><?php echo __('Track this shipment', 'csc_textdomain'); ?></a></div>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -230,10 +226,34 @@ add_action( 'wp_ajax_csc_print_label', function () {
     wp_die();
 } );
 
+// Handle auto PCN  when order is on hold and the order got no shipments
+function csc_handle_auto_pcn( $order_id ) {
+    $handle_pcn = get_option('csc_pcn_auto');
+
+    if($handle_pcn == 'yes' AND !isset(get_post_meta($order_id, '_csc_shipments')[0])) {
+        $box_sizes = CSC::getBoxSizes();
+        $box_primary = array();
+        foreach ($box_sizes as $box_size) {
+            if($box_size['primary'] == 1) {
+                $box_primary = $box_size;
+            }
+        }
+        $box_primary['weight'] = get_order_weight($order_id);
+        error_log('sizes: ' . print_r($box_primary, 1));
+
+        csc_create_shipment($order_id, $box_primary);
+    }
+};
+add_action( 'woocommerce_order_status_on-hold', 'csc_handle_auto_pcn');
+
 // Create shipment
 function csc_create_shipment($order_id = null, $size = null) {
     $warehouse = get_option('csc_warehouse');
+
+    error_log('csc: ' . $order_id);
     $order = new WC_Order($order_id);
+    error_log(print_r($order, 1));
+
     $shipping_method = CSC::getCSCShippingMethod($order->get_id());
 
     // Create shipment array
@@ -354,9 +374,11 @@ function csc_create_shipment($order_id = null, $size = null) {
                     );
                 }
 
-                $array['order_lines'][] = $productArray;
+                $shipment_data['order_lines'][] = $productArray;
             }
         }
+
+        error_log(print_r($shipment_data, 1));
     }
 
     $cr_api = new SmartCheckoutSDK\CoolRunnerAPI\API(get_option('coolrunner_username'), get_option('coolrunner_token'));
@@ -412,18 +434,18 @@ function csc_create_shipment($order_id = null, $size = null) {
 function csc_pickup_to_checkout() {
     ?>
     <div class="coolrunner_select_shop" data-carrier="" name="coolrunner_select_shop">
-        <h3><?php echo __( 'Choose package shop', CSC_TEXTDOMAIN ); ?></h3>
-        <p><?php echo __( 'Choose where you want your package to be dropped off', CSC_TEXTDOMAIN ); ?></p>
+        <h3><?php echo __( 'Choose package shop', 'csc_textdomain' ); ?></h3>
+        <p><?php echo __( 'Choose where you want your package to be dropped off', 'csc_textdomain' ); ?></p>
 
         <input type="hidden" name="coolrunner_carrier" id="coolrunner_carrier">
-        <label for="coolrunner_zip_code_search" class=""><?php echo __( 'Input Zip Code', CSC_TEXTDOMAIN ); ?></label>
+        <label for="coolrunner_zip_code_search" class=""><?php echo __( 'Input Zip Code', 'csc_textdomain' ); ?></label>
         <div class="zip-row">
             <div>
                 <input class="input-text" type="text" id="coolrunner_zip_code_search" name="coolrunner_zip_code_search">
             </div>
             <div>
                 <button style="width: 100%;" type="button" id="coolrunner_search_droppoints" name="coolrunner_search_droppoints">
-                    <?php echo __( 'Search for package shop', CSC_TEXTDOMAIN ); ?>
+                    <?php echo __( 'Search for package shop', 'csc_textdomain' ); ?>
                 </button>
             </div>
         </div>
@@ -477,7 +499,7 @@ function csc_droppoint_search() {
                             </div>
                             <?php if ( $_POST['city'] && $_POST['street'] ) : ?>
                                 <div>
-                                    <?php echo __( 'Distance', CSC_TEXTDOMAIN ) ?>: <?php echo number_format( intval( $entry->distance ) / 1000, 2 ) ?>km
+                                    <?php echo __( 'Distance', 'csc_textdomain' ) ?>: <?php echo number_format( intval( $entry->distance ) / 1000, 2 ) ?>km
                                 </div>
                             <?php endif; ?>
                         </td>
@@ -530,7 +552,7 @@ function csc_status_custom_column( $columns ) {
     }
     $updated_columns = array_slice( $columns, 0, $offset, true ) +
         array(
-            'csc_status' => esc_html__( 'CoolRunner', CSC_TEXTDOMAIN )
+            'csc_status' => esc_html__( 'CoolRunner', 'csc_textdomain' )
         ) +
         array_slice( $columns, $offset, null, true );
 
@@ -544,11 +566,11 @@ function csc_status_column( $column ) {
 
     if ( $column == 'csc_status' ) {
         if(isset(get_post_meta($post->ID, '_csc_shipments')[0])) {
-            echo '<mark class="order-status status-completed coolrunner"><img src="/wp-content/plugins/coolrunner_smartcheckout/assets/images/print.png" height="20px" style="margin-top: 7px; margin-left: 7px; filter: brightness(0) invert(1);"><span>Afsendt ( '.count(get_post_meta($post->ID, '_csc_shipments')[0]).' labels )</span></mark>';
+            echo '<mark class="order-status status-completed coolrunner"><img src="/wp-content/plugins/coolrunner_smartcheckout/assets/images/print.png" height="20px" style="margin-top: 7px; margin-left: 7px; filter: brightness(0) invert(1);"><span>'.__('Sent', 'csc_textdomain'). ' ( '.count(get_post_meta($post->ID, '_csc_shipments')[0]).' labels )</span></mark>';
         } elseif(check_if_error($post->ID)) {
-            echo '<mark class="order-status status-failed coolrunner"><img src="/wp-content/plugins/coolrunner_smartcheckout/assets/images/print.png" height="20px" style="margin-top: 7px; margin-left: 7px; filter: brightness(0) invert(1);"><span>Fejl ved oprettelse</span></mark>';
+            echo '<mark class="order-status status-failed coolrunner"><img src="/wp-content/plugins/coolrunner_smartcheckout/assets/images/print.png" height="20px" style="margin-top: 7px; margin-left: 7px; filter: brightness(0) invert(1);"><span>'.__('Error creating shipment', 'csc_textdomain'). '</span></mark>';
         } else {
-            echo '<mark class="order-status coolrunner"><img src="/wp-content/plugins/coolrunner_smartcheckout/assets/images/print.png" height="20px" style="margin-top: 7px; margin-left: 7px; filter: brightness(0) invert(1);"><span>Ikke afsendt</span></mark>';
+            echo '<mark class="order-status coolrunner"><img src="/wp-content/plugins/coolrunner_smartcheckout/assets/images/print.png" height="20px" style="margin-top: 7px; margin-left: 7px; filter: brightness(0) invert(1);"><span>'.__('No shipments', 'csc_textdomain'). '</span></mark>';
         }
     }
 }
@@ -556,8 +578,8 @@ add_action( 'manage_shop_order_posts_custom_column', 'csc_status_column', 2 );
 
 // Adding bulk action to print all orders
 function csc_bulk_actions( $actions ) {
-    $actions['print_all_orders'] = __( 'CoolRunner: Print labels', CSC_TEXTDOMAIN );
-    $actions['create_shipments_orders'] = __( 'CoolRunner: Create labels', CSC_TEXTDOMAIN );
+    $actions['print_all_orders'] = __( 'CoolRunner: Print labels', 'csc_textdomain' );
+    $actions['create_shipments_orders'] = __( 'CoolRunner: Create labels', 'csc_textdomain' );
     return $actions;
 }
 add_filter( 'bulk_actions-edit-shop_order', 'csc_bulk_actions', 20, 1 );
@@ -642,18 +664,22 @@ function check_if_error($post_id) {
         'order'   => 'DESC',
         'approve' => 'approve',
         'type'    => 'order_note',
-        'number'  => 1
+        'number'  => 10,
+        'user_id' => 0
     );
 
     remove_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ), 10, 1 );
     $notes = get_comments( $args );
     add_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ), 10, 1 );
 
-    if(strpos($notes[0]->comment_content, 'FEJL (CoolRunner)') !== false && !isset(get_post_meta($post_id, '_csc_shipments')[0])) {
-        return true;
-    } else {
-        return false;
+    $is_error = false;
+    foreach ($notes as $note) {
+        if (strpos($note->comment_content, 'FEJL (CoolRunner)') !== false && !isset(get_post_meta($post_id, '_csc_shipments')[0])) {
+            $is_error = true;
+        }
     }
+
+    return $is_error;
 }
 
 function get_order_weight($post_id) {

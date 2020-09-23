@@ -26,7 +26,6 @@ define( 'CSC_WOOCOMMERCE_VERSION', '1.1' );
 define( 'CSC_PLUGIN_FILE', __FILE__ );
 define( 'CSC_PLUGIN_URL', plugins_url( '', __FILE__ ) );
 define( 'CSC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'CSC_TEXTDOMAIN', 'csc_textdomain' );
 define( 'CSC_PLUGIN_VERSION', '0.5.0' );
 
 // Check if WooCommerce is installed - This is required for this plugin
@@ -35,8 +34,8 @@ if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 	add_action( 'admin_notices', function () {
 		?>
         <div class="notice notice-warning">
-            <p><?php _e( 'CoolRunner SmartCheckout requires WooCommerce to be installed and active.', CSC_TEXTDOMAIN ); ?></p>
-            <p><?php _e( 'You download WooCommerce here:', CSC_TEXTDOMAIN ); ?><?php echo sprintf( '<a href="%s/wp-admin/plugin-install.php?s=WooCommerce&tab=search&type=term">Download</a>', get_site_url() ) ?></p>
+            <p><?php _e( 'CoolRunner SmartCheckout requires WooCommerce to be installed and active.', 'csc_textdomain' ); ?></p>
+            <p><?php _e( 'You download WooCommerce here:', 'csc_textdomain' ); ?><?php echo sprintf( '<a href="%s/wp-admin/plugin-install.php?s=WooCommerce&tab=search&type=term">Download</a>', get_site_url() ) ?></p>
         </div>
 		<?php
 	} );
@@ -46,14 +45,14 @@ if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
     // Add translations to plugin
 	add_action( 'plugins_loaded', 'csc_load_textdomain' );
 	function csc_load_textdomain() {
-		load_plugin_textdomain( CSC_TEXTDOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		load_plugin_textdomain( 'csc_textdomain', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
 	// Add links on plugins overview page
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'crship_action_links' );
 	function crship_action_links( $links ) {
-		$links[] = '<a href="' . admin_url( 'admin.php?page=csc-options' ) . '">' . __( 'Settings', CSC_TEXTDOMAIN ) . '</a>';
-		$links[] = '<a href="https://coolrunner.dk/om-coolrunner/" target="_blank">' . __( 'Read more about CoolRunner', CSC_TEXTDOMAIN ) . '</a>';
+		$links[] = '<a href="' . admin_url( 'admin.php?page=csc-options' ) . '">' . __( 'Settings', 'csc_textdomain' ) . '</a>';
+		$links[] = '<a href="https://coolrunner.dk/om-coolrunner/" target="_blank">' . __( 'Read more about CoolRunner', 'csc_textdomain' ) . '</a>';
 
 		return $links;
 	}
@@ -67,7 +66,7 @@ if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 			wp_localize_script( 'csc', 'csc', array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 				'lang'     => array(
-					'droppoint_searching' => __( 'Searching for droppoints!', CSC_TEXTDOMAIN )
+					'droppoint_searching' => __( 'Searching for droppoints!', 'csc_textdomain' )
 				)
 			) );
 		}
@@ -87,7 +86,7 @@ if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
             wp_localize_script( 'csc', 'csc', array(
                 'ajax_url' => admin_url( 'admin-ajax.php' ),
                 'lang'     => array(
-                    'droppoint_searching' => __( 'Searching for droppoints!', CSC_TEXTDOMAIN )
+                    'droppoint_searching' => __( 'Searching for droppoints!', 'csc_textdomain' )
                 )
             ) );
         }

@@ -27,6 +27,21 @@ if ( ! empty( $_POST ) ) {
             <div class="csc-settings-inputs">
                 <div class="csc-text-input"><input type="text" value="<?php echo get_option( 'csc_token' ) ?>" name="csc_token" id="csc_token" placeholder="<?php echo __('Indtast installationstoken', CSC_TEXTDOMAIN); ?>"></div>
                 <div class="csc-text-input"><input type="text" value="<?php echo get_option( 'csc_storename' ) ?>" name="csc_storename" id="csc_storename" placeholder="<?php echo __('Indtast webshoppens navn', CSC_TEXTDOMAIN); ?>"></div>
+                <div class="csc-text-input">
+                    <select name="csc_warehouse" id="csc_warehouse">
+                        <option value="normal" <?php echo get_option( 'csc_warehouse') == 'normal' ? 'selected' : '' ?>>Eget varehus</option>
+                        <option value="pcn" <?php echo get_option( 'csc_warehouse') == 'pcn' ? 'selected' : '' ?>>PakkecenterNord</option>
+                    </select>
+                </div>
+                <?php if(get_option('csc_warehouse') == 'pcn'): ?>
+                    <div class="csc-text-input">
+                        <select name="csc_pcn_auto" id="csc_pcn_auto">
+                            <option value="">Automatisk håndtering af PakkecenterNord ordre</option>
+                            <option value="yes" <?php echo get_option( 'csc_pcn_auto') == 'yes' ? 'selected' : '' ?>>Ja, fremsend automatisk ordre til PCN</option>
+                            <option value="no" <?php echo get_option( 'csc_pcn_auto') == 'no' ? 'selected' : '' ?>>Nej, jeg håndtere selv ordrene til PCN</option>
+                        </select>
+                    </div>
+                <?php endif; ?>
                 <div>
                     <div class="col1">
                         <input type="submit" value="<?php echo __('Opret forbindelse', CSC_TEXTDOMAIN); ?>">
