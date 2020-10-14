@@ -1,20 +1,37 @@
 <?php
 namespace SmartCheckoutSDK;
 
-use SmartCheckoutSDK\Models\Products;
-
 class Connect
 {
-    public function connect($savedToken, $recievedToken = 123456)
+    public function connect($savedToken, $data)
     {
-        // This is supposed to setup the checkout when you connect a new shop.
-        // This will install the needed informations from CoolRunner
+        $endpoint = "https://c93e976605fc3f8c449be085f6142491.m.pipedream.net/" . $savedToken;
 
-        if($savedToken == $recievedToken) {
-            Products::getInstance()->save_products();
-        } else {
-            print_r(['error' => 'Authentication', 'text' => 'The authentications tokens doesnt match - Please try again.']);
+        if(is_array($data) OR is_object($data)) {
+            $data = json_encode($data);
         }
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $endpoint,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => $data,
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        return $response;
     }
 
     public function ping($token, $savedToken, $platform, $website, $version)

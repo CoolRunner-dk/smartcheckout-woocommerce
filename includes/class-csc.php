@@ -77,11 +77,11 @@ class CSC {
 	}
 
 	public static function getBoxSizes() {
-		return get_option( 'coolrunner_box_sizes', false ) !== false ? unserialize( get_option( 'coolrunner_box_sizes' ) ) : [];
+		return get_option( 'csc_box_sizes', false ) !== false ? unserialize( get_option( 'coolrunner_box_sizes' ) ) : [];
 	}
 
 	public static function saveBoxSizes( array $sizes ) {
-		update_option( 'coolrunner_box_sizes', serialize( $sizes ) );
+		update_option( 'csc_box_sizes', serialize( $sizes ) );
 	}
 
 }

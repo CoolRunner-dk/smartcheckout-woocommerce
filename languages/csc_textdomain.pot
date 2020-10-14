@@ -1,0 +1,129 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: CoolRunner - SmartCheckout\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-21 11:30+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.4.3; wp-5.5.1"
+
+#: coolrunner_smartcheckout.php:37
+msgid ""
+"CoolRunner SmartCheckout requires WooCommerce to be installed and active."
+msgstr ""
+
+#: coolrunner_smartcheckout.php:38
+msgid "You download WooCommerce here:"
+msgstr ""
+
+#: coolrunner_smartcheckout.php:54
+msgid "Settings"
+msgstr ""
+
+#: coolrunner_smartcheckout.php:55
+msgid "Read more about CoolRunner"
+msgstr ""
+
+#: coolrunner_smartcheckout.php:69 coolrunner_smartcheckout.php:89
+msgid "Searching for droppoints!"
+msgstr ""
+
+#: includes/functions.php:29
+msgid "Create label"
+msgstr ""
+
+#: includes/functions.php:36
+msgid "Pick a box size.."
+msgstr ""
+
+#: includes/functions.php:50
+msgid "Width:"
+msgstr ""
+
+#: includes/functions.php:54
+msgid "Length:"
+msgstr ""
+
+#: includes/functions.php:58
+msgid "Height:"
+msgstr ""
+
+#: includes/functions.php:62
+msgid "Weight:"
+msgstr ""
+
+#: includes/functions.php:88 includes/functions.php:101
+msgid "Track this shipment"
+msgstr ""
+
+#: includes/functions.php:437
+msgid "Choose package shop"
+msgstr ""
+
+#: includes/functions.php:438
+msgid "Choose where you want your package to be dropped off"
+msgstr ""
+
+#: includes/functions.php:441
+msgid "Input Zip Code"
+msgstr ""
+
+#: includes/functions.php:448
+msgid "Search for package shop"
+msgstr ""
+
+#: includes/functions.php:502
+msgid "Distance"
+msgstr ""
+
+#. Author of the plugin
+#: includes/functions.php:555
+msgid "CoolRunner"
+msgstr ""
+
+#: includes/functions.php:569
+msgid "Sent"
+msgstr ""
+
+#: includes/functions.php:571
+msgid "Error creating shipment"
+msgstr ""
+
+#: includes/functions.php:573
+msgid "No shipments"
+msgstr ""
+
+#: includes/functions.php:581
+msgid "CoolRunner: Print labels"
+msgstr ""
+
+#: includes/functions.php:582
+msgid "CoolRunner: Create labels"
+msgstr ""
+
+#. Name of the plugin
+msgid "CoolRunner - SmartCheckout"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"With CoolRunner SmartCheckout you will be able to setup rules, conditions "
+"and much more for your shipping so you are able to provide the best possible "
+"solution for your customer."
+msgstr ""
+
+#. URI of the plugin
+msgid "https://coolrunner.dk/customer/integrations"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://coolrunner.dk"
+msgstr ""

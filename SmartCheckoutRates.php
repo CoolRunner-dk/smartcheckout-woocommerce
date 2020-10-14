@@ -60,15 +60,15 @@ class SmartCheckoutRates extends WC_Shipping_Method {
 
         // Init shipment data
         $shipment_data = array(
-            'customer_name' => WC()->checkout->get_value('shipping_first_name') . ' ' . WC()->checkout->get_value('shipping_last_name'),
-            'customer_address1' => $package['destination']['address_1'],
-            'customer_address2' => $package['destination']['address_2'],
-            'customer_country' => $package['destination']['country'],
-            'customer_city' => $package['destination']['city'],
-            'customer_zipcode' => $package['destination']['postcode'],
-            'customer_phone' => WC()->checkout->get_value('billing_phone'),
-            'customer_email' => WC()->checkout->get_value('billing_email'),
-            'customer_company' => (WC()->checkout->get_value('shipping_company') != '') ? WC()->checkout->get_value('shipping_company') : '',
+            'receiver_name' => WC()->checkout->get_value('shipping_first_name') . ' ' . WC()->checkout->get_value('shipping_last_name'),
+            'receiver_address1' => $package['destination']['address_1'],
+            'receiver_address2' => $package['destination']['address_2'],
+            'receiver_country' => $package['destination']['country'],
+            'receiver_city' => $package['destination']['city'],
+            'receiver_zipcode' => $package['destination']['postcode'],
+            'receiver_phone' => WC()->checkout->get_value('billing_phone'),
+            'receiver_email' => WC()->checkout->get_value('billing_email'),
+            'receiver_company' => (WC()->checkout->get_value('shipping_company') != '') ? WC()->checkout->get_value('shipping_company') : '',
             'cart_amount' => $woocommerce->cart->cart_contents_count,
             'cart_weight' => $cart_weight,
             'cart_date' => $cart_date,
@@ -89,10 +89,10 @@ class SmartCheckoutRates extends WC_Shipping_Method {
                 $checkout_data[$v[0]] = $v[1];
             }
 
-            $shipment_data['customer_name'] = $checkout_data['billing_first_name'] . ' ' . $checkout_data['billing_last_name'];
-            $shipment_data['customer_company'] = $checkout_data['shipping_company'];
-            $shipment_data['customer_email'] = $checkout_data['billing_email'];
-            $shipment_data['customer_phone'] = $checkout_data['billing_phone'];
+            $shipment_data['receiver_name'] = $checkout_data['billing_first_name'] . ' ' . $checkout_data['billing_last_name'];
+            $shipment_data['receiver_company'] = $checkout_data['shipping_company'];
+            $shipment_data['receiver_email'] = $checkout_data['billing_email'];
+            $shipment_data['receiver_phone'] = $checkout_data['billing_phone'];
         }
 
         // Check for free shipping coupon
@@ -112,14 +112,14 @@ class SmartCheckoutRates extends WC_Shipping_Method {
         $products = $this->validata_data($shipment_data);
         foreach ($products as $product) {
             $rate = array(
-                'id' => $product->product->carrier.'_'.$product->product->carrier_product.'_'.$product->product->carrier_service,
-                'label' => $product->product->title,
+                'id' => $product->carrier.'_'.$product->carrier_product.'_'.$product->carrier_service,
+                'label' => $product->title,
                 'cost' => ($free_shipping) ? 0 : $product->conditions[0]->price,
                 'calc_tax' => 'per_order',
                 'meta_data' => [
-                    'carrier' => $product->product->carrier,
-                    'product' => $product->product->carrier_product,
-                    'service' => $product->product->carrier_service
+                    'carrier' => $product->carrier,
+                    'product' => $product->carrier_product,
+                    'service' => $product->carrier_service
                 ]
             );
 
@@ -131,7 +131,7 @@ class SmartCheckoutRates extends WC_Shipping_Method {
 
     private function validata_data($shipment_data) {
         $smartcheckout = new \SmartCheckoutSDK\Validate();
-        $products = json_decode($smartcheckout->handle_ecommerce($shipment_data));
+        $products = json_decode($smartcheckout->handle_ecommerce($shipment_data, get_option('csc_shop_token')));
 
         return $products;
     }

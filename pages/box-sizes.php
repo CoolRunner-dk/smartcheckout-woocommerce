@@ -66,19 +66,19 @@ if ( empty( $sizes ) ) {
 <a href="/wp-admin/admin.php?page=csc-options"><div class="cscback"><</div></a>
 <div class="csc-boxsizes">
     <div class="csc-box-title">
-        <div><?php echo __('Prædefineret kassestørrelser', CSC_TEXTDOMAIN); ?></div>
+        <div><?php echo __('Prædefineret kassestørrelser', 'csc_textdomain'); ?></div>
     </div>
     <div class="csc-box-content">
     <form action="" method="post">
         <table id="coolrunner-box-sizes-table">
             <thead>
             <tr>
-                <th><?php echo __( 'Title', CSC_TEXTDOMAIN ) ?></th>
-                <th><?php echo __( 'Height (cm)', CSC_TEXTDOMAIN ) ?></th>
-                <th><?php echo __( 'Width (cm)', CSC_TEXTDOMAIN ) ?></th>
-                <th><?php echo __( 'Length (cm)', CSC_TEXTDOMAIN ) ?></th>
-                <th><?php echo __( 'Max weight (kg)', CSC_TEXTDOMAIN ) ?></th>
-                <th><?php echo __( 'Primary', CSC_TEXTDOMAIN ) ?></th>
+                <th><?php echo __( 'Title', 'csc_textdomain' ) ?></th>
+                <th><?php echo __( 'Height (cm)', 'csc_textdomain' ) ?></th>
+                <th><?php echo __( 'Width (cm)', 'csc_textdomain' ) ?></th>
+                <th><?php echo __( 'Length (cm)', 'csc_textdomain' ) ?></th>
+                <th><?php echo __( 'Max weight (kg)', 'csc_textdomain' ) ?></th>
+                <th><?php echo __( 'Primary', 'csc_textdomain' ) ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -119,9 +119,9 @@ if ( empty( $sizes ) ) {
             <tfoot>
             <tr>
                 <td colspan="100" class="text-right">
-                    <button id="coolrunner-add-row" type="button" class="button csc-nonprim"><?php echo __( 'Add row', CSC_TEXTDOMAIN ) ?> +</button>
+                    <button id="coolrunner-add-row" type="button" class="button csc-nonprim"><?php echo __( 'Add row', 'csc_textdomain' ) ?> +</button>
                     <button name="save" value="1" type="submit" class="button button-primary csc">
-                        <?php echo __( 'Save', CSC_TEXTDOMAIN ) ?>
+                        <?php echo __( 'Save', 'csc_textdomain' ) ?>
                     </button>
                 </td>
             </tr>

@@ -6,9 +6,9 @@ use SmartCheckoutSDK\Models\Products;
 
 class Validate
 {
-    public function handle_ecommerce($checkoutData)
+    public function handle_ecommerce($checkoutData, $shop_token)
     {
-        $checkout = new Ecommerce($checkoutData);
+        $checkout = new Ecommerce($checkoutData, $shop_token);
         $products = $checkout->validate_data();
 
         // Returns products or json with error

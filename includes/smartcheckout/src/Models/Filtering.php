@@ -1,13 +1,6 @@
 <?php
 namespace SmartCheckoutSDK\Models;
 
-use SmartCheckoutSDK\Models\FilterTypes\ArrayList;
-use SmartCheckoutSDK\Models\FilterTypes\Boolean;
-use SmartCheckoutSDK\Models\FilterTypes\Double;
-use SmartCheckoutSDK\Models\FilterTypes\Number;
-use SmartCheckoutSDK\Models\FilterTypes\Text;
-use SmartCheckoutSDK\Models\FilterTypes\DateTime;
-
 class Filtering
 {
     private static $instance;
@@ -22,116 +15,30 @@ class Filtering
         return self::$instance;
     }
     
-    public function validate($data, $products)
+    public function validate($data, $shop_token)
     {
-        // Instantiate
-        $macthingProducts = [];
-        $errorValidation = [];
-        $productCounted = 0;
+        $curl = curl_init();
 
-        // Handle all products
-        foreach ($products as $product) {
-            // Handle all filter for selected product
-            foreach ($product->conditions as $condition) {
-                // Validation is standard true if no filters then show all products
-                // This is used because to show a product you need to add an empty filter
-                $validationResult = ['result' => true, 'validation-error' => '', 'filter-failed' => ''];
-                foreach ($condition->filters as $filter) {
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://sv0ruqhnd4.execute-api.eu-central-1.amazonaws.com/default/smartcheckout?shop_token=" . $shop_token,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json"
+            )
+        ));
 
-                    switch ($filter->type) {
-                        case 'number':
-                            if ($validationResult['result']) {
-                                $numberFilterType = Number::getInstance();
-                                $numberFilterType->validate($filter, $data);
-                                $singleResult = $numberFilterType->result();
+        $response = curl_exec($curl);
 
-                                if(!$singleResult) {
-                                    $validationResult = ['result' => false, 'error' => 'Failed handling '. $filter->type .' filter type', 'filter-failed' => $filter];
-                                }
-                            }
-                            break;
-                        case 'array':
-                            if($validationResult['result']) {
-                                $arrayListFilterType = ArrayList::getInstance();
-                                $arrayListFilterType->validate($filter, $data);
-                                $singleResult = $arrayListFilterType->result();
+        curl_close($curl);
 
-                                if (!$singleResult) {
-                                    $validationResult = ['result' => false, 'error' => 'Failed handling '. $filter->type .' filter type', 'filter-failed' => $filter];
-                                }
-                            }
-                            break;
-                        case 'datetime':
-                            if ($validationResult['result']) {
-                                $dateFilterType = DateTime::getInstance();
-                                $dateFilterType->validate($filter, $data);
-                                $singleResult = $dateFilterType->result();
 
-                                if(!$singleResult) {
-                                    $validationResult = ['result' => false, 'error' => 'Failed handling '. $filter->type .' filter type', 'filter-failed' => $filter];
-                                }
-                            }
-                            break;
-                        case 'text':
-                            if ($validationResult['result']) {
-                                $textFilterType = Text::getInstance();
-                                $textFilterType->validate($filter, $data);
-                                $singleResult = $textFilterType->result();
-
-                                if(!$singleResult) {
-                                    $validationResult = ['result' => false, 'error' => 'Failed handling '. $filter->type .' filter type', 'filter-failed' => $filter];
-                                }
-                            }
-                            break;
-                        case 'double':
-                            if ($validationResult['result']) {
-                                $doubleFilterType = Double::getInstance();
-                                $doubleFilterType->validate($filter, $data);
-                                $singleResult = $doubleFilterType->result();
-
-                                if(!$singleResult) {
-                                    $validationResult = ['result' => false, 'error' => 'Failed handling '. $filter->type .' filter type', 'filter-failed' => $filter];
-                                }
-                            }
-                            break;
-                        case 'boolean':
-                            if ($validationResult['result']) {
-                                $booleanFilterType = Boolean::getInstance();
-                                $booleanFilterType->validate($filter, $data);
-                                $singleResult = $booleanFilterType->result();
-
-                                if(!$singleResult) {
-                                    $validationResult = ['result' => false, 'error' => 'Failed handling '. $filter->type .' filter type', 'filter-failed' => $filter];
-                                }
-                            }
-                            break;
-                        default:
-                            $validationResult = ['result' => false, 'error' => 'Uncaught filtering type - Please contact CoolRunner at integration@coolrunner.dk', 'filter-failed' => $filter];
-                            break;
-                    }
-                }
-
-                // Product filters matched all criteria, and therefore should be returned
-                if($validationResult['result']) {
-                    $finalProduct = $product;
-                    unset($finalProduct->conditions);
-
-                    // Returns products and only the conditions that matches
-                    if(!isset($macthingProducts[$productCounted])) {
-                        $macthingProducts[$productCounted] = ['product' => $finalProduct, 'conditions' => [$condition]];
-                    } else {
-                        $macthingProducts[$productCounted]['conditions'][] = $condition;
-                    }
-                } else {
-                    // Can be used to track validation errors
-                    // Not used for anything as is
-                    $errorValidation[] = $validationResult;
-                }
-            }
-
-            $productCounted++;
-        }
-
-        return json_encode($macthingProducts);
+        return $response;
     }
 }

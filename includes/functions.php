@@ -215,9 +215,47 @@ add_action( 'wp_ajax_csc_create_shipment', function () {
     wp_die();
 } );
 
+add_action( 'add_meta_boxes', function () {
+    global $post, $post_type;
+    if ( $post_type !== 'shop_order' ) {
+        return;
+    }
+
+    $order = wc_get_order( $post->ID );
+    $shipping_method = CSC::getCSCShippingMethod($order->get_id());
+
+    if ( $shipping_method['method_id'] != 'smartcheckout_shipping' ) {
+        return;
+    }
+
+    add_meta_box( 'csc_tracking', __( 'Tracking History', 'csc_textdomain' ), function () {
+        global $post;
+        $order       = new WC_Order( $post->ID );
+        $cr_api = new \SmartCheckoutSDK\CoolRunnerAPI\API(get_option('csc_integration_email'), get_option('csc_integration_token'));
+        $shipments = get_post_meta($order->get_id(), '_csc_shipments')[0];
+
+        foreach ($shipments as $shipment): ?>
+            <?php $tracking = json_decode($cr_api->get_tracking($shipment['package_number'])); ?>
+
+            <div class="tracking_package">
+                <div class="tracking_number">
+                    <div><?php echo $tracking->package_number; ?></div>
+                </div>
+                <?php $events = array_reverse($tracking->events); ?>
+                <?php foreach ($events as $event): ?>
+                    <div class="tracking_event">
+                        <div class="tracking_event_time"><?php echo $event->timestamp; ?></div>
+                        <div class="tracking_event_text"><?php echo $event->title; ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endforeach;
+    }, 'shop_order', 'side', 'core' );
+}, 2 );
+
 add_action( 'wp_ajax_csc_print_label', function () {
     if ( isset( $_POST['package_number'] ) ) {
-        $cr_api = new SmartCheckoutSDK\CoolRunnerAPI\API(get_option('coolrunner_username'), get_option('coolrunner_token'));
+        $cr_api = new SmartCheckoutSDK\CoolRunnerAPI\API(get_option('csc_integration_email'), get_option('csc_integration_token'));
         $label = $cr_api->get_label($_POST['package_number']);
 
         echo base64_encode($label);
@@ -381,7 +419,7 @@ function csc_create_shipment($order_id = null, $size = null) {
         error_log(print_r($shipment_data, 1));
     }
 
-    $cr_api = new SmartCheckoutSDK\CoolRunnerAPI\API(get_option('coolrunner_username'), get_option('coolrunner_token'));
+    $cr_api = new SmartCheckoutSDK\CoolRunnerAPI\API(get_option('csc_integration_email'), get_option('csc_integration_token'));
     $response = $cr_api->create_shipment($shipment_data, $warehouse);
     $response = json_decode($response);
 
@@ -461,7 +499,7 @@ add_action( 'woocommerce_review_order_before_payment', 'csc_pickup_to_checkout' 
 function csc_droppoint_search() {
     global $woocommerce;
 
-    $coolrunner_api = new \SmartCheckoutSDK\CoolRunnerAPI\API(get_option('coolrunner_username'), get_option('coolrunner_token'));
+    $coolrunner_api = new \SmartCheckoutSDK\CoolRunnerAPI\API(get_option('csc_integration_email'), get_option('csc_integration_token'));
     $response = $coolrunner_api->get_servicepoints($_POST['carrier'], $_POST['country'], isset( $_POST['street'] ) ? $_POST['street'] : null, $_POST['zip_code'], isset( $_POST['city'] ) ? $_POST['city'] : null);
     $response = json_decode($response);
     $radios = array();
@@ -528,13 +566,13 @@ function csc_add_order_droppoint($order_id, $posted) {
 
 // Open API endpoints
 add_action( 'rest_api_init', function () {
-    register_rest_route( 'coolrunner/v1', '/update/(?P<token>\d+)', array(
+    register_rest_route( 'smartcheckout/v1', '/update/(?P<token>\d+)', array(
         'methods' => 'POST',
         'callback' => 'csc_updateproducts',
         'permission_callback' => '__return_true'
     ));
 
-    register_rest_route( 'coolrunner/v1', '/ping/(?P<token>\d+)', array(
+    register_rest_route( 'smartcheckout/v1', '/ping/(?P<token>\d+)', array(
         'methods' => 'get',
         'callback' => 'csc_ping',
         'permission_callback' => '__return_true'
@@ -599,7 +637,7 @@ function csc_bulk_print( $redirect_to, $action, $post_ids ) {
         $orderShipments = get_post_meta($post_id, '_csc_shipments')[0];
 
         foreach ($orderShipments as $shipment) {
-            $cr_api = new SmartCheckoutSDK\CoolRunnerAPI\API(get_option('coolrunner_username'), get_option('coolrunner_token'));
+            $cr_api = new SmartCheckoutSDK\CoolRunnerAPI\API(get_option('csc_integration_email'), get_option('csc_integration_token'));
             $shipmentLabel = $cr_api->get_label($shipment['package_number']);
 
             $file = CSC_PLUGIN_DIR . '/pdfs/' . $count . '-' . $post_id . '-' . $time . '.pdf';
@@ -759,6 +797,29 @@ function csc_updateproducts( $data ) {
         echo json_encode(['status' => 'success', 'message' => 'Products got updated at ' . $time]);
     } else {
         echo json_encode(['status' => 'failed', 'message' => 'Authentication failed. Tokens didnt match.']);
+    }
+}
+
+function csc_install( $new_token ) {
+    global $woocommerce;
+
+    // Get shop data
+    $shop_data = array(
+        'activation_code' => $new_token,
+        'name' => get_option("csc_storename"),
+        'platform' => "WooCommerce",
+        'version' => $woocommerce->version,
+        'pingback_url' => get_site_url() . "/wp-json/smartcheckout/v1/ping/" . $new_token
+    );
+
+    // Connect to CoolRunner
+    $smart_checkout = new \SmartCheckoutSDK\Connect();
+    $connectResponse = json_decode($smart_checkout->connect($new_token, $shop_data));
+
+    if($connectResponse->status == "ok") {
+        update_option('csc_shop_token', $connectResponse->shop_info->shop_token);
+        update_option('csc_integration_email', $connectResponse->shop_info->integration_email);
+        update_option('csc_integration_token', $connectResponse->shop_info->integration_token);
     }
 }
 

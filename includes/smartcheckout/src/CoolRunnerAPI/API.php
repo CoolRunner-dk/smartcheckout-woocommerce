@@ -59,6 +59,16 @@ class API
         return $response;
     }
 
+    public function validate_address($data)
+    {
+        // Define API properties
+        $endpoint = "https://api.coolrunner.dk/v3/shipments/address/validate";
+        $type = "POST";
+
+        $response = $this->curl($endpoint, $type, $data);
+        return json_decode($response);
+    }
+
     public function get_shipment($package_number)
     {
         // Define API properties

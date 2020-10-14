@@ -336,6 +336,29 @@ select#csc_warehouse, select#csc_pcn_auto {
     text-align: center !important;
 }
 
+.tracking_package {
+    margin-bottom: 20px;
+}
+
+.tracking_number {
+    font-weight: bold;
+    color: #007cba;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #dfdfdf;
+}
+
+.tracking_event {
+    margin-bottom: 10px;
+    font-size: 12px;
+    padding: 5px;
+    background: #f8f8f8;
+    border-bottom: 1px solid #dfdfdf;
+}
+
+.tracking_event_time {
+    color: #007cba;
+}
+
 mark.order-status.status-completed.coolrunner {
     background: #157efb;
     color: white;
