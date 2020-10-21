@@ -277,8 +277,6 @@ function csc_handle_auto_pcn( $order_id ) {
             }
         }
         $box_primary['weight'] = get_order_weight($order_id);
-        error_log('sizes: ' . print_r($box_primary, 1));
-
         csc_create_shipment($order_id, $box_primary);
     }
 };
@@ -287,11 +285,7 @@ add_action( 'woocommerce_order_status_on-hold', 'csc_handle_auto_pcn');
 // Create shipment
 function csc_create_shipment($order_id = null, $size = null) {
     $warehouse = get_option('csc_warehouse');
-
-    error_log('csc: ' . $order_id);
     $order = new WC_Order($order_id);
-    error_log(print_r($order, 1));
-
     $shipping_method = CSC::getCSCShippingMethod($order->get_id());
 
     // Create shipment array
@@ -401,12 +395,13 @@ function csc_create_shipment($order_id = null, $size = null) {
                 );
 
                 if($order->get_shipping_country() == 'NO') {
+                    $tariff = $prod->get_product()->get_attribute('hs-tariff') ? $prod->get_product()->get_attribute('hs-tariff') : $prod->get_product()->get_attribute('pa_hs_tariff');
                     $productArray['customs'] = array(
                         "description" => $prod->get_product()->get_name(),
                         "total_price" => $prod->get_subtotal(),
                         "currency_code" => "NOK",
-                        "sender_tariff" => $prod->get_product()->get_attribute('hs-tariff'),
-                        "receiver_tariff" => $prod->get_product()->get_attribute('hs-tariff'),
+                        "sender_tariff" => $tariff,
+                        "receiver_tariff" => $tariff,
                         "weight" => $prod->get_product()->get_weight(),
                         "origin_country" => "DK"
                     );
@@ -415,8 +410,6 @@ function csc_create_shipment($order_id = null, $size = null) {
                 $shipment_data['order_lines'][] = $productArray;
             }
         }
-
-        error_log(print_r($shipment_data, 1));
     }
 
     $cr_api = new SmartCheckoutSDK\CoolRunnerAPI\API(get_option('csc_integration_email'), get_option('csc_integration_token'));
@@ -464,8 +457,7 @@ function csc_create_shipment($order_id = null, $size = null) {
         $order->add_order_note('FEJL (CoolRunner): ' . $response->message);
     }
 
-    header( 'Content-Type: application/json' );
-    echo json_encode( $response );
+    return json_encode( $response );
 }
 
 // Handle droppoint
@@ -518,32 +510,30 @@ function csc_droppoint_search() {
             );
 
             ?>
-            <label>
-                <table style="margin: 0;">
-                    <colgroup>
-                        <col width="1">
-                        <col>
-                    </colgroup>
-                    <tr>
-                        <td>
-                            <div class="cr-check">
-                                <input required type="radio" name="coolrunner_droppoint" value='<?php echo base64_encode( json_encode( $props ) ) ?>'>
-                            </div>
-                        </td>
-                        <td>
-                            <b><?php echo $entry->name ?></b>
+            <table style="margin: 0;">
+                <colgroup>
+                    <col width="1">
+                    <col>
+                </colgroup>
+                <tr>
+                    <td>
+                        <div class="cr-check">
+                            <input required type="radio" name="coolrunner_droppoint" value='<?php echo base64_encode( json_encode( $props ) ) ?>'>
+                        </div>
+                    </td>
+                    <td>
+                        <b><?php echo $entry->name ?></b>
+                        <div>
+                            <?php printf( '%s, %s-%s %s', $entry->address->street, $entry->address->country_code, $entry->address->zip_code, $entry->address->city ) ?>
+                        </div>
+                        <?php if ( $_POST['city'] && $_POST['street'] ) : ?>
                             <div>
-                                <?php printf( '%s, %s-%s %s', $entry->address->street, $entry->address->country_code, $entry->address->zip_code, $entry->address->city ) ?>
+                                <?php echo __( 'Distance', 'csc_textdomain' ) ?>: <?php echo number_format( intval( $entry->distance ) / 1000, 2 ) ?>km
                             </div>
-                            <?php if ( $_POST['city'] && $_POST['street'] ) : ?>
-                                <div>
-                                    <?php echo __( 'Distance', 'csc_textdomain' ) ?>: <?php echo number_format( intval( $entry->distance ) / 1000, 2 ) ?>km
-                                </div>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                </table>
-            </label>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            </table>
             <?php
             $radios[] = ob_get_clean();
         }
@@ -741,7 +731,7 @@ function get_order_weight($post_id) {
         $total_weight = 1;
     }
 
-    $total_weight = $total_weight*1000;
+    $total_weight = $total_weight * 1000;
 
     return $total_weight;
 }

@@ -99,14 +99,14 @@ class API
         return $response;
     }
 
-    public function get_servicepoints($carrier, $country_code, $street, $zip_code, $city)
+    public function get_servicepoints($carrier, $country_code, $street, $zip_code, $city, $limit = 5)
     {
         // Define API properties
         $endpoint_data = array(
             "country_code" => $country_code,
-            "street" => $street,
             "zip_code" => $zip_code,
-            "city" => $city
+            "city" => $city,
+            "limit" => $limit
         );
 
         $endpoint = "https://api.coolrunner.dk/v3/servicepoints/".$carrier . '?' . http_build_query($endpoint_data);

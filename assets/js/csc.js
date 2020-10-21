@@ -1,4 +1,5 @@
 jQuery(function ($) {
+    // Handle if a customer clicks a droppoint
     $(document).on('click', '[name="coolrunner_search_droppoints"]', function () {
         var _ = $('.coolrunner_select_shop'),
             diff_ship_address = $('[name="ship_to_different_address"]').is(':checked'),
