@@ -72,7 +72,7 @@ if ( ! empty( $_POST ) ) {
 <?php if(get_option('csc_token') != ''): ?>
     <div class="csc-settings-boxes">
         <div>
-            <a href="https://coolrunner.dk"><?php echo __('Opret leveringsprodukter', 'csc_textdomain'); ?></a><br>
+            <a href="https://account.coolrunner.dk/"><?php echo __('Opret leveringsprodukter', 'csc_textdomain'); ?></a><br>
             Opsætning af leveringsprodukter du ønsker, at tilbyde dine kunder.
         </div>
     </div>
