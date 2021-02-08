@@ -5,7 +5,7 @@ class Connect
 {
     public function connect($savedToken, $data)
     {
-        $endpoint = "https://c93e976605fc3f8c449be085f6142491.m.pipedream.net/" . $savedToken;
+        $endpoint = "https://api.smartcheckout.coolrunner.dk?shop_token=" . $savedToken;
 
         if(is_array($data) OR is_object($data)) {
             $data = json_encode($data);
