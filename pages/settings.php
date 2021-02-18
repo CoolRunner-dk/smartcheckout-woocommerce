@@ -1,8 +1,7 @@
 <?php
 $new_token = 0;
-$change_token = falsE;
-
-if ( ! empty( $_POST ) ) {
+$change_token = false;
+if ( !empty( $_POST ) ) {
     foreach ( $_POST as $key => $value ) {
         if($key == 'csc_token' AND $value != get_option('csc_token')) {
             error_log('key: ' . $key  . ' - value: ' . $value);
@@ -15,6 +14,7 @@ if ( ! empty( $_POST ) ) {
     }
 
     if($change_token) {
+        error_log('clicked connect 2');
         // Save informations
         csc_install($new_token);
     }
@@ -32,6 +32,8 @@ if ( ! empty( $_POST ) ) {
             <div class="csc-settings-inputs">
                 <div class="csc-text-input"><input type="text" value="<?php echo get_option( 'csc_token' ) ?>" name="csc_token" id="csc_token" placeholder="<?php echo __('Indtast installationstoken', 'csc_textdomain'); ?>"></div>
                 <div class="csc-text-input"><input type="text" value="<?php echo get_option( 'csc_storename' ) ?>" name="csc_storename" id="csc_storename" placeholder="<?php echo __('Indtast webshoppens navn', 'csc_textdomain'); ?>"></div>
+                <div class="csc-text-input"><input type="text" value="<?php echo get_option( 'woocommerce_store_phone' ) ?>" name="woocommerce_store_phone" id="woocommerce_store_phone" placeholder="<?php echo __('Indtast webshoppens telefonnummer', 'csc_textdomain'); ?>"></div>
+                <div class="csc-text-input"><input type="text" value="<?php echo get_option( 'woocommerce_store_email' ) ?>" name="woocommerce_store_email" id="woocommerce_store_email" placeholder="<?php echo __('Indtast webshoppens email', 'csc_textdomain'); ?>"></div>
                 <div class="csc-text-input">
                     <select name="csc_warehouse" id="csc_warehouse">
                         <option value="normal" <?php echo get_option( 'csc_warehouse') == 'normal' ? 'selected' : '' ?>>Eget varehus</option>
