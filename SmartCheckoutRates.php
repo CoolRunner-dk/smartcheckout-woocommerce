@@ -65,7 +65,7 @@ class SmartCheckoutRates extends WC_Shipping_Method {
             'receiver_address2' => $package['destination']['address_2'],
             'receiver_country' => $package['destination']['country'],
             'receiver_city' => $package['destination']['city'],
-            'receiver_zipcode' => $package['destination']['postcode'],
+            'receiver_zip_code' => $package['destination']['postcode'],
             'receiver_phone' => WC()->checkout->get_value('billing_phone'),
             'receiver_email' => WC()->checkout->get_value('billing_email'),
             'receiver_company' => (WC()->checkout->get_value('shipping_company') != '') ? WC()->checkout->get_value('shipping_company') : '',
@@ -108,6 +108,8 @@ class SmartCheckoutRates extends WC_Shipping_Method {
                 }
             }
         }
+
+        error_log(print_r($shipment_data, 1));
 
         $products = $this->validata_data($shipment_data);
         foreach ($products as $product) {

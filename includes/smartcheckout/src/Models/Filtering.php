@@ -14,13 +14,15 @@ class Filtering
 
         return self::$instance;
     }
-    
+
     public function validate($data, $shop_token)
     {
         $curl = curl_init();
 
+        $endpoint = "https://api.smartcheckout.coolrunner.dk?shop_token=" . $shop_token;
+
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://sv0ruqhnd4.execute-api.eu-central-1.amazonaws.com/default/smartcheckout?shop_token=" . $shop_token,
+            CURLOPT_URL => $endpoint,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
