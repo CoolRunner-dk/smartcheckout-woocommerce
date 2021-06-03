@@ -280,7 +280,7 @@ function csc_handle_auto_pcn( $order_id ) {
         csc_create_shipment($order_id, $box_primary);
     }
 };
-add_action( 'woocommerce_order_status_on-hold', 'csc_handle_auto_pcn');
+add_action( 'woocommerce_order_status_processing', 'csc_handle_auto_pcn');
 
 // Create shipment
 function csc_create_shipment($order_id = null, $size = null) {
