@@ -197,6 +197,51 @@ function crship_package_information($order = null) {
 }
 add_action('woocommerce_admin_order_data_after_shipping_address', 'crship_package_information', 10, 1);
 
+// HS Codes
+function product_shipping_options() {
+    global $post_id, $post;
+
+    if(empty($post_id)) {
+        $post_id = $post->ID;
+    }
+
+    $countries = new WC_Countries();
+    $select_options = $countries->__get('countries');
+
+    woocommerce_wp_select([
+        'id' => '_coolrunner_origin_country',
+        'label' => __('Country of origin', 'csc_textdomain'),
+        'description' => __('Country of origin for the product', 'csc_textdomain'),
+        'desc_tip' => 'true',
+        'options' => array(
+                '' => __('Select country', 'csc_textdomain')
+            ) + $select_options
+    ]);
+
+    woocommerce_wp_text_input([
+        'id' => '_coolrunner_hs_code',
+        'label' => __('HS Tariff code', 'csc_textdomain'),
+        'description' => __('Harmonized tariff code.', 'csc_textdomain'),
+        'desc_tip' => 'true',
+        'placeholder' => __('Example 8774787', 'csc_textdomain')
+    ]);
+
+}
+add_action('woocommerce_product_options_shipping', 'product_shipping_options', 8);
+
+function save_product_shipping_options($post_id) {
+    // Country of origin
+    if (isset($_POST['_coolrunner_origin_country'])) {
+        update_post_meta($post_id, '_coolrunner_origin_country', $_POST['_coolrunner_origin_country']);
+    }
+
+    // HS Code
+    if (isset($_POST['_coolrunner_hs_code'])) {
+        update_post_meta($post_id, '_coolrunner_hs_code', $_POST['_coolrunner_hs_code']);
+    }
+}
+add_action('woocommerce_process_product_meta', 'save_product_shipping_options');
+
 // Handle ajax call
 add_action( 'wp_ajax_csc_create_shipment', function () {
     if ( isset( $_POST['order_id'] ) && $order_id = $_POST['order_id'] ) {
@@ -291,17 +336,17 @@ function csc_create_shipment($order_id = null, $size = null) {
     // Create shipment array
     if($warehouse == "normal") {
         $shipment_data = array(
-             "sender" => array(
-                 "name" => get_option('csc_storename'),
-                 "attention" => "",
-                 "street1" => WC()->countries->get_base_address(),
-                 "street2" => WC()->countries->get_base_address_2(),
-                 "zip_code" => WC()->countries->get_base_postcode(),
-                 "city" => WC()->countries->get_base_city(),
-                 "country" => WC()->countries->get_base_country(),
-                 "phone" => get_option( 'woocommerce_store_phone' ),
-                 "email" => get_option( 'woocommerce_store_email' )
-             ),
+            "sender" => array(
+                "name" => get_option('csc_storename'),
+                "attention" => "",
+                "street1" => WC()->countries->get_base_address(),
+                "street2" => WC()->countries->get_base_address_2(),
+                "zip_code" => WC()->countries->get_base_postcode(),
+                "city" => WC()->countries->get_base_city(),
+                "country" => WC()->countries->get_base_country(),
+                "phone" => get_option( 'woocommerce_store_phone' ),
+                "email" => get_option( 'woocommerce_store_email' )
+            ),
             "receiver" => array(
                 "name" => ($order->get_shipping_company() != '') ? $order->get_shipping_company() : $order->get_formatted_shipping_full_name(),
                 "attention" => ($order->get_shipping_company() != '') ? $order->get_formatted_shipping_full_name() : "",
@@ -333,27 +378,31 @@ function csc_create_shipment($order_id = null, $size = null) {
         }
 
         // Handle orderlines
-        if($order->get_shipping_country() == 'NO') {
-            foreach ($order->get_items() as $item) {
-                $prod = new WC_Order_Item_Product($item->get_id());
-                if (!$prod->get_product()->is_virtual()) {
-                    $productArray = array(
-                        'item_number' => $prod->get_product()->get_sku(),
-                        'qty' => $item->get_quantity()
-                    );
+        foreach ($order->get_items() as $item) {
+            $prod = new WC_Order_Item_Product($item->get_id());
+            if (!$prod->get_product()->is_virtual()) {
+                $productArray = array(
+                    'item_number' => $prod->get_product()->get_sku(),
+                    'qty' => $item->get_quantity()
+                );
+
+                if(!empty(get_post_meta($item['product_id'], '_coolrunner_origin_country', true))) {
+
+                    $tariff = get_post_meta($item['product_id'], '_coolrunner_origin_country', true);
+                    $origin_country = get_post_meta($item['product_id'], '_coolrunner_hs_code', true);
 
                     $productArray['customs'] = array(
                         "description" => $prod->get_product()->get_name(),
                         "total_price" => $prod->get_subtotal(),
-                        "currency_code" => "NOK",
-                        "sender_tariff" => $prod->get_product()->get_attribute('hs-tariff'),
-                        "receiver_tariff" => $prod->get_product()->get_attribute('hs-tariff'),
+                        "currency_code" => "DKK",
+                        "sender_tariff" => $tariff,
+                        "receiver_tariff" => $tariff,
                         "weight" => $prod->get_product()->get_weight(),
-                        "origin_country" => "DK"
+                        "origin_country" => $origin_country
                     );
-
-                    $array['order_lines'][] = $productArray;
                 }
+
+                $array['order_lines'][] = $productArray;
             }
         }
     } elseif ($warehouse = "pcn") {
@@ -394,16 +443,19 @@ function csc_create_shipment($order_id = null, $size = null) {
                     'qty'         => $item->get_quantity()
                 );
 
-                if($order->get_shipping_country() == 'NO') {
-                    $tariff = $prod->get_product()->get_attribute('hs-tariff') ? $prod->get_product()->get_attribute('hs-tariff') : $prod->get_product()->get_attribute('pa_hs_tariff');
+                if(!empty(get_post_meta($item['product_id'], '_coolrunner_origin_country', true))) {
+
+                    $tariff = get_post_meta($item['product_id'], '_coolrunner_origin_country', true);
+                    $origin_country = get_post_meta($item['product_id'], '_coolrunner_hs_code', true);
+
                     $productArray['customs'] = array(
                         "description" => $prod->get_product()->get_name(),
                         "total_price" => $prod->get_subtotal(),
-                        "currency_code" => "NOK",
+                        "currency_code" => "DKK",
                         "sender_tariff" => $tariff,
                         "receiver_tariff" => $tariff,
                         "weight" => $prod->get_product()->get_weight(),
-                        "origin_country" => "DK"
+                        "origin_country" => $origin_country
                     );
                 }
 
@@ -819,7 +871,8 @@ function csc_install( $new_token ) {
         'name' => get_option("csc_storename"),
         'platform' => "WooCommerce",
         'version' => $woocommerce->version,
-        'pingback_url' => get_site_url() . "/wp-json/smartcheckout/v1/ping/" . $new_token
+        'shop_url' => "https://coolrunner.dk",
+        'pingback_url' => 'https://google.dk' // get_site_url() . "/wp-json/smartcheckout/v1/ping/" . $new_token
     );
 
     // Connect to CoolRunner
