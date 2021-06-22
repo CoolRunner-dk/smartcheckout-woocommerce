@@ -424,6 +424,16 @@ function csc_create_shipment($order_id = null, $size = null) {
                 $shipments = get_post_meta($order->get_id(), '_csc_shipments')[0];
             }
 
+            $old_tz = date_default_timezone_get();
+
+            date_default_timezone_set('Europe/Copenhagen');
+            $time = time();
+            date_default_timezone_set($old_tz);
+
+            if ( function_exists( 'wc_st_add_tracking_number' ) ) {
+                wc_st_add_tracking_number( $order_id, $response->package_number, 'CoolRunner', $time, 'https://tracking.coolrunner.dk/?shipment='.$response->package_number );
+            }
+
             $shipments[] = array(
                 "package_number" => $response->package_number,
                 "labelless_code" => (isset($response->labelless_code)) ? $response->labelless_code : '',
@@ -441,6 +451,16 @@ function csc_create_shipment($order_id = null, $size = null) {
                 $shipments = array();
             } else {
                 $shipments = get_post_meta($order->get_id(), '_csc_shipments');
+            }
+
+            $old_tz = date_default_timezone_get();
+
+            date_default_timezone_set('Europe/Copenhagen');
+            $time = time();
+            date_default_timezone_set($old_tz);
+
+            if ( function_exists( 'wc_st_add_tracking_number' ) ) {
+                wc_st_add_tracking_number( $order_id, $response->package_number, 'CoolRunner', $time, 'https://tracking.coolrunner.dk/?shipment='.$response->package_number );
             }
 
             $shipments[] = array(
