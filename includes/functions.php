@@ -871,8 +871,8 @@ function csc_install( $new_token ) {
         'name' => get_option("csc_storename"),
         'platform' => "WooCommerce",
         'version' => $woocommerce->version,
-        'shop_url' => "https://coolrunner.dk",
-        'pingback_url' => 'https://google.dk' // get_site_url() . "/wp-json/smartcheckout/v1/ping/" . $new_token
+        'shop_url' => get_site_url(),
+        'pingback_url' => get_site_url() . "/wp-json/smartcheckout/v1/ping/" . $new_token
     );
 
     // Connect to CoolRunner
