@@ -803,9 +803,6 @@ function get_order_weight($post_id) {
 			// Add the line item weight (in grams) to the total weight calculation
 			$total_weight += $product_weight * $quantity * 1000;
 		}
-		
-        // Add the line item weight to the total weight calculation
-        $total_weight += $product_weight * $quantity;
     }
 
     if($total_weight == 0) {
