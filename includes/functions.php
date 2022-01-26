@@ -407,7 +407,7 @@ function csc_create_shipment($order_id = null, $size = null) {
         }
     } elseif ($warehouse = "pcn") {
         $shipment_data = array(
-            "order_number" => $order->get_id(),
+            "order_number" => (string) $order->get_id(),
             "receiver_name" => ($order->get_shipping_company() != '') ? $order->get_shipping_company() : $order->get_formatted_shipping_full_name(),
             "receiver_attention" => ($order->get_shipping_company() != '') ? $order->get_formatted_shipping_full_name() : "",
             "receiver_street1" => $order->get_shipping_address_1(),
