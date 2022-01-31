@@ -367,7 +367,7 @@ function csc_create_shipment($order_id = null, $size = null) {
             "carrier" => $shipping_method['method_meta']['carrier'],
             "carrier_product" => $shipping_method['method_meta']['product'],
             "carrier_service" => $shipping_method['method_meta']['service'],
-            "reference" => $order->get_id(),
+            "reference" => (string) $order->get_id(),
             "description" => "",
             "comment" => "",
             "label_format" => "LabelPrint"
@@ -429,7 +429,7 @@ function csc_create_shipment($order_id = null, $size = null) {
             "carrier" => $shipping_method['method_meta']['carrier'],
             "carrier_product" => $shipping_method['method_meta']['product'],
             "carrier_service" => $shipping_method['method_meta']['service'],
-            "reference" => $order->get_id(),
+            "reference" => (string) $order->get_id(),
             "description" => "",
             "comment" => ""
         );
