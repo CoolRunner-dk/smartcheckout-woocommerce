@@ -54,7 +54,7 @@ class SmartCheckoutRates extends WC_Shipping_Method {
                 'item_weight' => $_product->get_weight()
             );
 
-            $cart_weight += (int) $_product->get_weight();
+            $cart_weight += $_product->get_weight()*((int) $cart_product['quantity']);
             $cart_subtotal += $cart_product['line_subtotal'];
         }
 
