@@ -2,25 +2,48 @@
 
 class SmartCheckoutRates extends WC_Shipping_Method {
 
-    public function __construct()
+    public function __construct($instance_id = 0)
     {
+        parent::__construct( $instance_id );
+
         $this->id                 = 'smartcheckout_shipping'; // Id for your shipping method. Should be uunique.
         $this->method_title       = __( 'CoolRunner SmartCheckout Rates' );  // Title shown in admin
         $this->method_description = __( 'Get alle your shipping rates with CoolRunner SmartCheckout' ); // Description shown in admin
 
-        $this->enabled            = "yes"; // This can be added as an setting but for this example its forced enabled
         $this->title              = "CoolRunner SmartCheckout"; // This can be added as an setting but for this example its forced.
+
+        $this->supports = [
+            'shipping-zones',
+            'instance-settings',
+            'instance-settings-modal',
+        ];
 
         $this->init();
     }
 
     function init() {
         // Load the settings API
-        $this->init_form_fields(); // This is part of the settings API. Override the method to add your own settings
+        $this->init_form_fields(); // This is part of the settings API.
         $this->init_settings(); // This is part of the settings API. Loads settings you previously init.
 
         // Save settings in admin if you have any defined
         add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
+    }
+
+    /**
+     * Init form fields.
+     */
+    public function init_form_fields()
+    {
+        $this->instance_form_fields = [
+            'title' => [
+                'title' => __('Title', 'woocommerce'),
+                'type' => 'text',
+                'description' => '<a href="https://account.coolrunner.dk/" target="_blank">' . __('Opret leveringsprodukter', 'csc_textdomain') . '</a>',
+                'default' => 'CoolRunner SmartCheckout',
+                'desc_tip' => false,
+            ],
+        ];
     }
 
     public function calculate_shipping( $package = [] ) {

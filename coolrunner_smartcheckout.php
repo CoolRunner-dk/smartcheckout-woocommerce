@@ -101,7 +101,7 @@ if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
     });
 
     add_filter('woocommerce_shipping_methods', function ($methods) {
-        $methods['CSC'] = 'SmartCheckoutRates';
+        $methods['smartcheckout_shipping'] = 'SmartCheckoutRates';
         return $methods;
     });
 
