@@ -794,16 +794,20 @@ function get_order_weight($post_id) {
         if($product_weight == 0 OR $product_weight == '') {
             $product_weight = 1;
         }
-
-        // Add the line item weight to the total weight calculation
-        $total_weight += $product_weight * $quantity;
+		// Check if WooCommerce weight unit is grams
+		if(get_option('woocommerce_weight_unit') == 'g'){
+			// Add the line item weight to the total weight calculation
+			$total_weight += $product_weight * $quantity;
+		}
+		else {
+			// Add the line item weight (in grams) to the total weight calculation
+			$total_weight += $product_weight * $quantity * 1000;
+		}
     }
 
     if($total_weight == 0) {
         $total_weight = 1;
     }
-
-    $total_weight = $total_weight * 1000;
 
     return $total_weight;
 }
