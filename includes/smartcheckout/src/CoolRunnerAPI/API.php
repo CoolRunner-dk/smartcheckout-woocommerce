@@ -106,6 +106,7 @@ class API
             "country_code" => $country_code,
             "zip_code" => $zip_code,
             "city" => $city,
+            "street" => $street,
             "limit" => $limit
         );
 
